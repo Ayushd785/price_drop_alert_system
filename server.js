@@ -17,3 +17,8 @@ app.get("/api/test", (req, res) => {
     msg: "backend route is running well",
   });
 });
+
+const authRoute = require("./routes/authRoutes");
+
+// Mount the auth routes so that any path starting with "/api/auth" is handled by authRoute
+app.use("/api/auth", authRoute);
