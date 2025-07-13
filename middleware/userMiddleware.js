@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const userMiddleware = (req, res, next) => {
-  const authHeader = req.headers.Authorization;
+  const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(404).json({
       msg: "Invalid token provided or token is missing",

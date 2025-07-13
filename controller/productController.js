@@ -5,7 +5,8 @@ const Product = require("../model/Product");
 const productController = async (req, res) => {
   try {
     const { url } = req.body;
-    const userId = req.user._id;
+    // userId is sent in the JWT payload as "userId"
+    const userId = req.user.userId || req.user._id; // fallback just in case
 
     const asin = extractASIN(url);
     if (!asin) {

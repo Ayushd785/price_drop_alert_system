@@ -62,7 +62,7 @@ const login = async (req, res) => {
         userId: user._id,
         email: user.email,
       },
-      process.env.JWT_SCERET_KEY,
+      process.env.JWT_SECRET_KEY,
       { expiresIn: "7d" }
     );
 

@@ -15,6 +15,7 @@ const scrapeUrl = async (asin) => {
     const productData = await page.evaluate(() => {
       const title = document.querySelector("#productTitle")?.innerText?.trim();
 
+      // --- Price ---
       const priceText =
         document.querySelector("#priceblock_dealprice")?.innerText ||
         document.querySelector("#priceblock_ourprice")?.innerText ||
@@ -25,16 +26,28 @@ const scrapeUrl = async (asin) => {
         ? parseFloat(priceText.replace(/[^0-9.]/g, ""))
         : null;
 
-      const image = page.evaluate(() => {
-        const imgTag =
-          document.querySelector("#landingImage") ||
-          document.querySelector("#imgTagWrapperId img");
-        const src = imgTag?.src;
-        if (src && src.startsWith("http")) return src;
+      // --- Image ---
+      let image = null;
+      const imgTag =
+        document.querySelector("#landingImage") ||
+        document.querySelector("#imgTagWrapperId img");
 
-        const data = imgTag?.getAttribute("data-a-dynamic-image");
-        return data ? Object.keys(JSON.parse(data))[0] : null;
-      });
+      if (imgTag) {
+        const src = imgTag.src;
+        if (src && src.startsWith("http")) {
+          image = src;
+        } else {
+          const data = imgTag.getAttribute("data-a-dynamic-image");
+          if (data) {
+            try {
+              image = Object.keys(JSON.parse(data))[0];
+            } catch (_) {
+              image = null;
+            }
+          }
+        }
+      }
+
       return { title, price, image };
     });
     await browser.close();

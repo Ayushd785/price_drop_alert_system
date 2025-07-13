@@ -26,3 +26,8 @@ const authRoute = require("./routes/authRoutes");
 
 // Mount the auth routes so that any path starting with "/api/auth" is handled by authRoute
 app.use("/api/auth", authRoute);
+
+const productRoute = require("./routes/productRoute");
+const authMiddleware = require("./middleware/userMiddleware");
+
+app.use("/api/product", authMiddleware, productRoute);
