@@ -16,7 +16,8 @@ const signup = async (req, res) => {
         message: "User already exists please try login",
       });
     }
-    const hashedPassword = bcrypt.hash(password, 10);
+    // Hash the password before saving the user
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       name,
       email,
@@ -34,38 +35,45 @@ const signup = async (req, res) => {
   }
 };
 
-const login = (req, res) => {
+// Login controller
+const login = async (req, res) => {
   try {
-    const { email, passowrd } = req.body;
-    const isExist = User.findOne({ email });
-    if (!isExist) {
+    const { email, password } = req.body;
+
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
       return res.status(404).json({
-        msg: "User does not exist with this email please signup",
+        msg: "User does not exist with this email, please signup",
       });
     }
-    const isValid = bcrypt.compare(passowrd, isExist.passowrd);
+
+    // Validate password
+    const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      return res.status(404).json({
-        msg: "wrong credentials provided",
+      return res.status(401).json({
+        msg: "Wrong credentials provided",
       });
     }
+
+    // Generate JWT token
     const jwtToken = jwt.sign(
       {
-        userId: isExist._id,
-        email,
+        userId: user._id,
+        email: user.email,
       },
-      process.env.JWT_SECRET_KEY,
+      process.env.JWT_SCERET_KEY,
       { expiresIn: "7d" }
     );
 
-    res.status(200).json({
-      message: "User loggedin Successfully",
+    return res.status(200).json({
+      message: "User logged in Successfully",
       token: jwtToken,
-      userId: isExist._id,
-      email: isExist.email,
+      userId: user._id,
+      email: user.email,
     });
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
       msg: "Server error",
       error: err.message,
     });
