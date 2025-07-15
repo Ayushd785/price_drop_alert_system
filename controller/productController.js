@@ -46,4 +46,20 @@ const productController = async (req, res) => {
   }
 };
 
-module.exports = productController;
+const getProducts = async (req, res) => {
+  try {
+    const userId = req.user.userId || req.user._id;
+    const products = await Product.find({ userId });
+    return res.status(200).json({
+      msg: "Products fetched successfully",
+      products,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      msg: "Internal issue",
+      error: err.message,
+    });
+  }
+};
+
+module.exports = { productController, getProducts };

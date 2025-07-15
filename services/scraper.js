@@ -1,8 +1,30 @@
-const puppeteer = require("puppeteer");
+// Use full Puppeteer locally, puppeteer-core + chrome-aws-lambda in AWS Lambda
+
+const launchBrowser = async () => {
+  // Detect Lambda by presence of AWS_LAMBDA_FUNCTION_VERSION env var
+  const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_VERSION;
+
+  if (isLambda) {
+    // Dynamically require to avoid including these heavy deps in local bundle unnecessarily
+    const chromium = require("chrome-aws-lambda");
+    const puppeteerCore = require("puppeteer-core");
+
+    return puppeteerCore.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
+    });
+  }
+
+  // Local / non-Lambda environment – use regular puppeteer
+  const puppeteer = require("puppeteer");
+  return puppeteer.launch({ headless: "new" });
+};
 
 const scrapeUrl = async (asin) => {
   const url = `https://www.amazon.in/dp/${asin}`;
-  const browser = await puppeteer.launch({ headless: "new" });
+  const browser = await launchBrowser();
   const page = await browser.newPage();
 
   await page.setUserAgent(
