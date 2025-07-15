@@ -69,8 +69,11 @@ const login = async (req, res) => {
     return res.status(200).json({
       message: "User logged in Successfully",
       token: jwtToken,
-      userId: user._id,
-      email: user.email,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
     });
   } catch (err) {
     return res.status(500).json({
@@ -100,4 +103,26 @@ const getProfile = async (req, res) => {
     });
   }
 };
-module.exports = { signup, login, getProfile };
+
+const verify = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        msg: "User not found",
+      });
+    }
+    return res.status(200).json({
+      msg: "Token is valid",
+      user,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message,
+    });
+  }
+};
+
+module.exports = { signup, login, getProfile, verify };
