@@ -62,4 +62,59 @@ const getProducts = async (req, res) => {
   }
 };
 
-module.exports = { productController, getProducts };
+const deleteProduct = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { id } = req.params;
+    const product = await Product.findOne({ _id: id, userId });
+    if (!product) {
+      return res.status(404).json({
+        msg: "Product not found",
+      });
+    }
+    await product.deleteOne();
+    return res.status(200).json({
+      msg: "product deleted successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      msg: "Internal error",
+      error: err.message,
+    });
+  }
+};
+
+const searchProduct = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { query } = req.query;
+    if (!query || query.trim() === "") {
+      return res.status(400).json({
+        msg: "valid search query is required",
+      });
+    }
+    const products = await Product.find({
+      userId: userId,
+      title: {
+        $regex: query,
+        $options: "i",
+      },
+    });
+    return res.status(200).json({
+      msg: `found ${products.length} products of matching ${query}`,
+      products,
+    });
+  } catch (Err) {
+    return res.status(500).json({
+      msg: "Internal error",
+      error: Err.message,
+    });
+  }
+};
+
+module.exports = {
+  productController,
+  getProducts,
+  deleteProduct,
+  searchProduct,
+};

@@ -2,6 +2,8 @@ const express = require("express");
 const {
   productController,
   getProducts,
+  deleteProduct,
+  searchProducts,
 } = require("../controller/productController");
 const router = express.Router();
 
@@ -13,4 +15,6 @@ router.get("/test", (req, res) => {
 
 router.post("/track", productController);
 router.get("/getProducts", getProducts);
+router.get("/search", searchProducts);
+router.delete("/deleteProduct/:id", deleteProduct);
 module.exports = router;
