@@ -22,6 +22,12 @@ const productController = async (req, res) => {
     }
     const { title, price, image } = scrapedData;
 
+    if (await Product.findOne({ title, userId })) {
+      return res.status(400).json({
+        msg: "Product already exists",
+      });
+    }
+
     const product = new Product({
       userId,
       asin,
@@ -64,7 +70,7 @@ const getProducts = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.userId || req.user._id;
     const { id } = req.params;
     const product = await Product.findOne({ _id: id, userId });
     if (!product) {
@@ -86,8 +92,9 @@ const deleteProduct = async (req, res) => {
 
 const searchProduct = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.userId || req.user._id;
     const { query } = req.query;
+    console.log(`Search request - userId: ${userId}, query: ${query}`); // Debug log
     if (!query || query.trim() === "") {
       return res.status(400).json({
         msg: "valid search query is required",

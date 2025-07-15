@@ -3,7 +3,7 @@ const {
   productController,
   getProducts,
   deleteProduct,
-  searchProducts,
+  searchProduct,
 } = require("../controller/productController");
 const router = express.Router();
 
@@ -15,6 +15,6 @@ router.get("/test", (req, res) => {
 
 router.post("/track", productController);
 router.get("/getProducts", getProducts);
-router.get("/search", searchProducts);
+router.get("/search", searchProduct);
 router.delete("/deleteProduct/:id", deleteProduct);
 module.exports = router;
