@@ -8,13 +8,8 @@ dotenv.config();
 // Middleware
 app.use(
   cors({
-    origin: [
-      "https://d3qmdkrgg8couo.cloudfront.net",
-      "https://d3vg4zcpqa6w6x.cloudfront.net",
-      "http://localhost:5173",
-      "http://localhost:3000",
-    ],
-    credentials: true,
+    origin: "*", // Allow all origins temporarily
+    credentials: false, // Must be false when origin is "*"
   })
 );
 app.use(express.json());
