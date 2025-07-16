@@ -9,6 +9,7 @@ dotenv.config();
 app.use(
   cors({
     origin: [
+      "https://d3qmdkrgg8couo.cloudfront.net",
       "https://d3vg4zcpqa6w6x.cloudfront.net",
       "http://localhost:5173",
       "http://localhost:3000",
