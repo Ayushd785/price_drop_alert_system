@@ -6,14 +6,43 @@ const cors = require("cors");
 dotenv.config();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://d3vg4zcpqa6w6x.cloudfront.net",
+      "http://localhost:5173",
+      "http://localhost:3000",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
-mongoose.connect(process.env.MONGODB_URI).then(() => {
-  console.log("Mongodb connected");
-  app.listen(process.env.PORT, () => {
-    console.log("app is Running on port", process.env.PORT);
-  });
+// MongoDB connection for serverless
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) {
+    return;
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    isConnected = true;
+    console.log("MongoDB connected");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw error;
+  }
+};
+
+// Connect to database before handling requests
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
 });
 
 app.get("/api/test", (req, res) => {
@@ -31,3 +60,6 @@ const productRoute = require("./routes/productRoute");
 const authMiddleware = require("./middleware/userMiddleware");
 
 app.use("/api/product", authMiddleware, productRoute);
+
+// Export the app for Vercel
+module.exports = app;
